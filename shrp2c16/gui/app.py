@@ -39,7 +39,7 @@ class MyApp:
     popen = None
 
     def scenarioes(self, _):
-        scen_path = os.path.join("..", "projects", "project")
+        scen_path = os.path.join(os.getcwd(), "projects", "project")
         directories = []
         if os.path.exists(scen_path):
             for directory in os.listdir(scen_path):
@@ -56,7 +56,7 @@ class MyApp:
         root_scenarios = []
         root_scenarios.append("template")
         scenarios = []
-        scen_path = os.path.join("..", "projects", "project")
+        scen_path = os.path.join(os.getcwd(), "projects", "project")
         for directory in os.listdir(scen_path):
             if directory != "parameters" and directory != "reports":
                 scenarios.append(directory)
@@ -67,7 +67,7 @@ class MyApp:
     scenarioes_to_copy.exposed = True
 
     def runstatus(self, _):
-        with open(os.path.join("..", "projects", "stdout.txt"), "r") as f:
+        with open(os.path.join(os.getcwd(), "stdout.txt"), "r") as f:
             content = f.readline()
         return simplejson.dumps({"output": content})
 
@@ -75,7 +75,7 @@ class MyApp:
 
     def state_files(self, name, _):
         files = os.listdir(
-            os.path.join(os.getcwd(), "..", "projects", "project", name, "parameters")
+            os.path.join(os.getcwd(), "projects", "project", name, "parameters")
         )
         return simplejson.dumps({"files": files})
 
@@ -89,18 +89,16 @@ class MyApp:
 
     def output_directories(self, name, _):
         files = os.listdir(
-            os.path.join(os.getcwd(), "..", "projects", "project", name, "outputs")
+            os.path.join(os.getcwd(), "projects", "project", name, "outputs")
         )
-        directory = os.path.join(
-            os.getcwd(), "..", "projects", "project", name, "outputs"
-        )
+        directory = os.path.join(os.getcwd(), "projects", "project", name, "outputs")
         return simplejson.dumps({"files": files, "directory": directory})
 
     output_directories.exposed = True
 
     def output_files(self, name, _):
         files = os.listdir(
-            os.path.join(os.getcwd(), "..", "projects", "project", name, "outputs")
+            os.path.join(os.getcwd(), "projects", "project", name, "outputs")
         )
         return simplejson.dumps({"files": files})
 
@@ -108,7 +106,7 @@ class MyApp:
 
     def scenario(self, name, _):
         files = os.listdir(
-            os.path.join(os.getcwd(), "..", "projects", "project", name, "inputs")
+            os.path.join(os.getcwd(), "projects", "project", name, "inputs")
         )
         file_edits = [False for file in files]
         return simplejson.dumps({"files": files, "file_edits": file_edits})
@@ -133,24 +131,20 @@ class MyApp:
     set_default_state.exposed = True
 
     def new_scenario(self, name, fromScenario, isFirst, _):
-        newdir = os.path.join(os.getcwd(), "..", "projects", "Project", name)
+        newdir = os.path.join(os.getcwd(), "projects", "project", name)
         if not os.path.isdir(newdir):
             if fromScenario.startswith("template"):
                 copytree(
-                    os.path.join(os.getcwd(), "..", "projects", "Demo Project", "base"),
-                    os.path.join(os.getcwd(), "..", "projects", "project", name),
+                    os.path.join(os.getcwd(), "projects", "Demo Project", "base"),
+                    os.path.join(os.getcwd(), "projects", "project", name),
                 )
             else:
                 copytree(
-                    os.path.join(
-                        os.getcwd(), "..", "projects", "project", fromScenario
-                    ),
-                    os.path.join(os.getcwd(), "..", "projects", "project", name),
+                    os.path.join(os.getcwd(), "projects", "project", fromScenario),
+                    os.path.join(os.getcwd(), "projects", "project", name),
                 )
             timestamp_file = open(
-                os.path.join(
-                    os.getcwd(), "..", "projects", "project", name, "time.txt"
-                ),
+                os.path.join(os.getcwd(), "projects", "project", name, "time.txt"),
                 "w",
             )
             timestamp_file.write(strftime("%a %b %d %H:%M:%S %Y", localtime()))
@@ -162,9 +156,9 @@ class MyApp:
     new_scenario.exposed = True
 
     def delete_scenario(self, name, _):
-        shutil.rmtree(os.path.join(os.getcwd(), "..", "projects", "project", name))
+        shutil.rmtree(os.path.join(os.getcwd(), "projects", "project", name))
         try:
-            shutil.rmtree(os.path.join(os.getcwd(), "views", "scenarios", name))
+            shutil.rmtree(os.path.join(os.getcwd(), "gui", "views", "scenarios", name))
         except:
             pass
         return simplejson.dumps({"success": True})
@@ -184,9 +178,7 @@ class MyApp:
 
     def loadoutputcsvfile(self, name, fileName, _):
         with open(
-            os.path.join(
-                os.getcwd(), "..", "projects", "project", name, "outputs", fileName
-            )
+            os.path.join(os.getcwd(), "projects", "project", name, "outputs", fileName)
         ) as csvfile:
             filereader = csv.reader(csvfile)
             out = [rowItem for rowItem in filereader]
@@ -197,7 +189,7 @@ class MyApp:
     def load_documentation(self, filename, _):
         out = ""
         for line in open(
-            os.path.join(os.getcwd(), "views", "docs", filename), encoding="utf8"
+            os.path.join(os.getcwd(), "gui", "views", "docs", filename), encoding="utf8"
         ):
             out += line
         return json.dumps({"data": out})
@@ -206,9 +198,7 @@ class MyApp:
 
     def loadcsvfile(self, name, fileName, _):
         with open(
-            os.path.join(
-                os.getcwd(), "..", "projects", "project", name, "inputs", fileName
-            )
+            os.path.join(os.getcwd(), "projects", "project", name, "inputs", fileName)
         ) as csvfile:
             filereader = csv.reader(csvfile)
             out = [rowItem for rowItem in filereader]
@@ -227,7 +217,7 @@ class MyApp:
     loadstatetextfile.exposed = True
 
     def loadReportSettings(self, _):
-        with open(os.path.join(os.getcwd(), "..", "scripts", "outputs.csv")) as csvfile:
+        with open(os.path.join(os.getcwd(), "scripts", "outputs.csv")) as csvfile:
             filereader = csv.reader(csvfile)
             out = [rowItem for rowItem in filereader]
         return json.dumps({"data": out})
@@ -276,26 +266,27 @@ class MyApp:
                     + ".jpeg"
                 )
                 print(scenarios_delimited, metric_array[1], metric_array[0], measure)
-                MyApp.popen = subprocess.Popen(
-                    [
-                        "Rscript",
-                        os.path.join(
-                            os.getcwd(), "..", "scripts", "SmartGAP_Reports.r"
-                        ),
-                        "-s",
-                        scenarios_delimited,
-                        "-p",
-                        '"' + metric_array[1] + '"',
-                        "-a",
-                        '"' + metric_array[0] + '"',
-                        "-m",
-                        '"' + measure + '"',
-                    ],
-                    cwd=os.path.join(os.getcwd(), "..", "projects", "project", "Base"),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                )
-                MyApp.popen.wait()
+                with open(
+                    os.path.join(os.getcwd(), "reports.txt"), "a"
+                ) as reports_file:
+                    MyApp.popen = subprocess.Popen(
+                        [
+                            "Rscript",
+                            os.path.join("scripts", "SmartGAP_Reports.r"),
+                            "-s",
+                            scenarios_delimited,
+                            "-p",
+                            metric_array[1],
+                            "-a",
+                            metric_array[0],
+                            "-m",
+                            measure,
+                        ],
+                        cwd=os.getcwd(),
+                        stdout=reports_file,
+                        stderr=subprocess.STDOUT,
+                    )
+                    MyApp.popen.wait()
 
         return json.dumps(
             {"scenarios": scenarios, "metrics": metrics, "images": images, "test": test}
@@ -306,7 +297,7 @@ class MyApp:
     def loadstatecsvfile(self, fileName, directory, name, _):
         with open(
             os.path.join(
-                os.getcwd(), "..", "projects", "project", name, "parameters", fileName
+                os.getcwd(), "projects", "project", name, "parameters", fileName
             )
         ) as csvfile:
             filereader = csv.reader(csvfile)
@@ -318,9 +309,7 @@ class MyApp:
     def savecsvfile(self, data, name, fileName):
         data = simplejson.loads(data)
         with open(
-            os.path.join(
-                os.getcwd(), "..", "projects", "project", name, "inputs", fileName
-            ),
+            os.path.join(os.getcwd(), "projects", "project", name, "inputs", fileName),
             "w",
             newline="",
         ) as csvfile:
@@ -363,7 +352,7 @@ class MyApp:
         data = simplejson.loads(data)
         with open(
             os.path.join(
-                os.getcwd(), "..", "projects", "project", name, "parameters", fileName
+                os.getcwd(), "projects", "project", name, "parameters", fileName
             ),
             "w",
             newline="",
@@ -375,9 +364,7 @@ class MyApp:
     savestatecsvfile.exposed = True
 
     def resetrunstatus(self, _):
-        my_stdout_file = open(
-            os.path.join(os.getcwd(), "..", "projects", "stdout.txt"), "w", newline=""
-        )
+        my_stdout_file = open(os.path.join(os.getcwd(), "stdout.txt"), "w", newline="")
         my_stdout_file.write("pending")
         my_stdout_file.close()
         return simplejson.dumps({"Status": "Success"})
@@ -388,10 +375,12 @@ class MyApp:
         MyApp.popen = subprocess.Popen(
             [
                 "Rscript",
-                os.path.join(os.getcwd(), "..", "scripts", "SmartGAP.r"),
+                os.path.join("scripts", "SmartGAP.r"),
+                "-s",
+                name,
             ],
             stdout=subprocess.PIPE,
-            cwd=os.path.join(os.getcwd(), "..", "projects", "project", name),
+            cwd=os.getcwd(),
             stderr=subprocess.STDOUT,
         )
         my_stdout_file = open(os.path.join(os.getcwd(), "test.txt"), "w")
@@ -430,14 +419,14 @@ for proc in psutil.process_iter():
 
 
 dir = os.getcwd()
-report_dir = os.path.join(os.getcwd(), "..", "projects", "project", "reports")
+report_dir = os.path.join(os.getcwd(), "projects", "project", "reports")
 my_stdout_file = open(os.path.join(os.getcwd(), "stdout.txt"), "w")
 my_stdout_file.close()
 
 config = {
     "/": {
         "tools.staticdir.on": True,
-        "tools.staticdir.dir": os.path.join(dir, "views"),
+        "tools.staticdir.dir": os.path.join(dir, "gui", "views"),
         "tools.staticdir.index": "index.html",
     },
     "/reports": {"tools.staticdir.on": True, "tools.staticdir.dir": report_dir},
