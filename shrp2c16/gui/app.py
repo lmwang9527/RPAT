@@ -88,18 +88,20 @@ class MyApp:
     open_output_directory.exposed = True
 
     def output_directories(self, name, _):
-        files = os.listdir(
-            os.path.join(os.getcwd(), "projects", "project", name, "outputs")
-        )
         directory = os.path.join(os.getcwd(), "projects", "project", name, "outputs")
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        files = os.listdir(directory)
+
         return simplejson.dumps({"files": files, "directory": directory})
 
     output_directories.exposed = True
 
     def output_files(self, name, _):
-        files = os.listdir(
-            os.path.join(os.getcwd(), "projects", "project", name, "outputs")
-        )
+        directory = os.path.join(os.getcwd(), "projects", "project", name, "outputs")
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        files = os.listdir(directory)
         return simplejson.dumps({"files": files})
 
     output_files.exposed = True
@@ -266,9 +268,7 @@ class MyApp:
                     + ".jpeg"
                 )
                 print(scenarios_delimited, metric_array[1], metric_array[0], measure)
-                with open(
-                    os.path.join(os.getcwd(), "reports.txt"), "a"
-                ) as reports_file:
+                with open(os.path.join(os.getcwd(), "reports.log"), "a") as log_file:
                     MyApp.popen = subprocess.Popen(
                         [
                             "Rscript",
@@ -283,7 +283,7 @@ class MyApp:
                             measure,
                         ],
                         cwd=os.getcwd(),
-                        stdout=reports_file,
+                        stdout=log_file,
                         stderr=subprocess.STDOUT,
                     )
                     MyApp.popen.wait()
@@ -383,10 +383,11 @@ class MyApp:
             cwd=os.getcwd(),
             stderr=subprocess.STDOUT,
         )
-        my_stdout_file = open(os.path.join(os.getcwd(), "test.txt"), "w")
+        log_file_name = os.path.join(os.getcwd(), "sim.log")
+        my_stdout_file = open(log_file_name, "w")
         my_stdout_file.close()
         for line in iter(MyApp.popen.stdout.readline, ""):
-            my_stdout_file = open(os.path.join(os.getcwd(), "test.txt"), "ab")
+            my_stdout_file = open(log_file_name, "ab")
             my_stdout_file.write(line)
             my_stdout_file.close()
 
